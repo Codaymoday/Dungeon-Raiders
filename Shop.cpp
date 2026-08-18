@@ -17,7 +17,7 @@ Shop::Shop()
 
     string itemPool[] = {
         "placeholder 1", "placeholder 2", "placeholder 3",
-        "placeholder 4", "placeholder 5", "placeholder 6",
+        "placeholder 4", "placeholder 5", "placeholder 6",  
         "placeholder 7", "placeholder 8", "placeholder 9"
     };
 
@@ -65,23 +65,21 @@ Shop::~Shop()
 //displays current shop UI table
 void Shop::displayUI() const
 {
-    cout << "-------------------------------------------\n";
-    cout << "            WELCOME TO THE SHOP            \n";
-    cout << "-------------------------------------------\n";
-    cout << "SLOT  | ITEM NAME              | BUY PRICE     \n";
-    cout << "------|------------------------|---------------\n";
+    cout << "------------------------------------------------\n";
+    cout << "\033[32m            WELCOME TO THE SHOP            \033[0m\n";
+    cout << "------------------------------------------------\n";
+    cout << "SLOT | ITEM NAME                |     PRICE     \n";
+    cout << "-----|--------------------------|---------------\n";
 
     for (int i = 0; i < MaxItems; ++i) {
         if (ShopItems[i] != nullptr) {
-            cout << " [" << i + 1 << "]  | "
-                << ShopItems[i]->getName() << "\t\t| $"
-                << ItemValue[i] << "\n";
+            cout << " [" << i + 1 << "] | " << ShopItems[i]->getName() << "\t\t| \033[92m $ \033[0m" << ItemValue[i] << "\n";
         }
         else {
-            cout << " [" << i + 1 << "]  | [ Empty ]          | --\n";
+            cout << " [" << i + 1 << "] | [ Empty ]                | --\n";
         }
     }
-    cout << "-------------------------------------------\n";
+    cout << "------------------------------------------------\n";
 }
 
 //when player buys item from slot, frees memory and sets slot to nullptr
@@ -100,13 +98,13 @@ bool Shop::buyItem(int slotIndex, float& playerCoin)
     }
 
     if (playerCoin < ItemValue[index]) {
-        cout << "Not enough coins! Item costs $" << ItemValue[index]
-            << " but you have $" << playerCoin << ".\n";
+        cout << "Not enough coins! Item costs \033[92m $ \033[0m" << ItemValue[index]
+            << " but you have \033[92m $" << playerCoin << ".\n";
         return false;
     }
 
     playerCoin -= ItemValue[index];
-    cout << "Bought " << ShopItems[index]->getName() << " for $" << ItemValue[index] << "!\n";
+    cout << "Bought " << ShopItems[index]->getName() << " for \033[92m $ \033[0m" << ItemValue[index] << "!\n";
 
     delete ShopItems[index];
     ShopItems[index] = nullptr;
@@ -120,7 +118,7 @@ float Shop::sellItem(const item& itemToSell)
 {
     float payout = itemToSell.getPrice() * 0.5f;
 
-    cout << "Sold " << itemToSell.getName() << " to shop for $" << payout
+    cout << "Sold " << itemToSell.getName() << " to shop for \033[92m $ \033[0m" << payout
         << "! The item was processed and discarded.\n";
 
     return payout;
@@ -132,8 +130,8 @@ bool Shop::refreshShop(float& playerCoin)
     float refreshCost = 20.0f;
 
     if (playerCoin < refreshCost) {
-        cout << "Not enough coins! Refreshing the shop costs $" << refreshCost
-            << " but you have $" << playerCoin << ".\n";
+        cout << "Not enough coins! Refreshing the shop costs \033[92m $ \033[0m" << refreshCost
+            << " but you have \033[92m $ \033[0m" << playerCoin << ".\n";
         return false;
     }
 
@@ -170,7 +168,7 @@ bool Shop::refreshShop(float& playerCoin)
                         foundMatch = true;
                     }
                 }
-            }
+            }   
 
             if (!foundMatch) {
                 isDuplicate = false;
@@ -182,6 +180,6 @@ bool Shop::refreshShop(float& playerCoin)
         ItemValue[i] = randomPrice;
     }
 
-    cout << "Refreshed the entire shop for $20 coins!\n";
+    cout << "Refreshed the entire shop for \033[92m $ \033[0m 20 coins!\n";
     return true;
 }

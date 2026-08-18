@@ -6,7 +6,7 @@ using namespace std;
 int main()
 {
     Shop myShop;
-    float playerCoins = 100.0f;
+    float playerCoins = 1000.0f;
     int choice = 0;
 
     item magicRing("Magic Ring", 80.0f);
@@ -58,7 +58,7 @@ int main()
                 break;
             }
             case 3:
-                myShop.randItem(playerCoins);
+                myShop.refreshShop(playerCoins);
                 break;
 
             case 4:
