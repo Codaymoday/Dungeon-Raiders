@@ -2,14 +2,24 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <thread> 
+#include <chrono>  
+#include <iomanip>
 
 using namespace std;
+
+//helper function to handle character printing
+void Shop::animateText(const string& text, int delayMs) const
+{
+    for (char c : text) {
+        cout << c << flush;
+        this_thread::sleep_for(chrono::milliseconds(delayMs));
+    }
+}
 
 //init shop and randomizes the items that will be sold
 Shop::Shop()
 {
-    srand(static_cast<unsigned int>(time(nullptr)));
-
     for (int i = 0; i < MaxItems; ++i) {
         ShopItems[i] = nullptr;
         ItemValue[i] = 0.0f;
@@ -17,7 +27,7 @@ Shop::Shop()
 
     string itemPool[] = {
         "placeholder 1", "placeholder 2", "placeholder 3",
-        "placeholder 4", "placeholder 5", "placeholder 6",  
+        "placeholder 4", "placeholder 5", "placeholder 6",
         "placeholder 7", "placeholder 8", "placeholder 9"
     };
 
@@ -51,7 +61,6 @@ Shop::Shop()
     displayUI();
 }
 
-// Destructor: Deallocates remaining dynamic memory
 Shop::~Shop()
 {
     for (int i = 0; i < MaxItems; ++i) {
@@ -66,14 +75,15 @@ Shop::~Shop()
 void Shop::displayUI() const
 {
     cout << "------------------------------------------------\n";
-    cout << "\033[32m            WELCOME TO THE SHOP            \033[0m\n";
+    animateText("\033[32m            WELCOME TO THE SHOP            \033[0m\n", 15);
     cout << "------------------------------------------------\n";
     cout << "SLOT | ITEM NAME                |     PRICE     \n";
     cout << "-----|--------------------------|---------------\n";
 
     for (int i = 0; i < MaxItems; ++i) {
+        this_thread::sleep_for(chrono::milliseconds(200)); // delay load animation between slot reveals
         if (ShopItems[i] != nullptr) {
-            cout << " [" << i + 1 << "] | " << ShopItems[i]->getName() << "\t\t| \033[92m $ \033[0m" << ItemValue[i] << "\n";
+            cout << " [" << i + 1 << "] | " << ShopItems[i]->getName() << "\t\t| \033[92m $ \033[0m" << static_cast<int>(ItemValue[i]) << "\n";
         }
         else {
             cout << " [" << i + 1 << "] | [ Empty ]                | --\n";
@@ -88,27 +98,31 @@ bool Shop::buyItem(int slotIndex, float& playerCoin)
     int index = slotIndex - 1;
 
     if (index < 0 || index >= MaxItems) {
-        cout << "Invalid slot selection!\n";
+        animateText("Invalid slot selection!\n");
         return false;
     }
 
     if (ShopItems[index] == nullptr) {
-        cout << "Slot [" << slotIndex << "] is empty!\n";
+        animateText("Slot [" + to_string(slotIndex) + "] is empty!\n");
         return false;
     }
 
     if (playerCoin < ItemValue[index]) {
-        cout << "Not enough coins! Item costs \033[92m $ \033[0m" << ItemValue[index]
-            << " but you have \033[92m $" << playerCoin << ".\n";
+        string msg = "Not enough coins! Item costs \033[92m $ \033[0m" + to_string(static_cast<int>(ItemValue[index]))
+            + " but you have \033[92m $ \033[0m" + to_string(static_cast<int>(playerCoin)) + ".\n";
+        animateText(msg);
         return false;
     }
 
     playerCoin -= ItemValue[index];
-    cout << "Bought " << ShopItems[index]->getName() << " for \033[92m $ \033[0m" << ItemValue[index] << "!\n";
+    string buyMsg = "Bought " + ShopItems[index]->getName() + " for \033[92m $ \033[0m" + to_string(static_cast<int>(ItemValue[index])) + "!\n";
+    animateText(buyMsg);
 
     delete ShopItems[index];
     ShopItems[index] = nullptr;
     ItemValue[index] = 0.0f;
+
+    displayUI();
 
     return true;
 }
@@ -118,8 +132,9 @@ float Shop::sellItem(const item& itemToSell)
 {
     float payout = itemToSell.getPrice() * 0.5f;
 
-    cout << "Sold " << itemToSell.getName() << " to shop for \033[92m $ \033[0m" << payout
-        << "! The item was processed and discarded.\n";
+    string sellMsg = "Sold " + itemToSell.getName() + " to shop for \033[92m $ \033[0m" + to_string(static_cast<int>(payout))
+        + "! The item was processed and discarded.\n";
+    animateText(sellMsg);
 
     return payout;
 }
@@ -130,8 +145,9 @@ bool Shop::refreshShop(float& playerCoin)
     float refreshCost = 20.0f;
 
     if (playerCoin < refreshCost) {
-        cout << "Not enough coins! Refreshing the shop costs \033[92m $ \033[0m" << refreshCost
-            << " but you have \033[92m $ \033[0m" << playerCoin << ".\n";
+        string msg = "Not enough coins! Refreshing the shop costs \033[92m $ \033[0m" + to_string(static_cast<int>(refreshCost))
+            + " but you have \033[92m $ \033[0m" + to_string(static_cast<int>(playerCoin)) + ".\n";
+        animateText(msg);
         return false;
     }
 
@@ -168,18 +184,18 @@ bool Shop::refreshShop(float& playerCoin)
                         foundMatch = true;
                     }
                 }
-            }   
+            }
 
             if (!foundMatch) {
                 isDuplicate = false;
             }
         }
 
-        float randomPrice = static_cast<float>(rand() % 50 + 10);
+        float randomPrice = static_cast<float>(rand() % 60 + 10);
         ShopItems[i] = new item(candidateName, randomPrice);
         ItemValue[i] = randomPrice;
     }
 
-    cout << "Refreshed the entire shop for \033[92m $ \033[0m 20 coins!\n";
+    animateText("Refreshed the entire shop for \033[92m $ \033[0m 20 coins!\n");
     return true;
 }

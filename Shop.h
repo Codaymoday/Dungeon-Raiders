@@ -7,6 +7,7 @@ private:
     item* ShopItems[MaxItems];
     float ItemValue[MaxItems];
 
+    void animateText(const std::string& text, int delayMs = 15) const;
 public:
     Shop();
     ~Shop();
